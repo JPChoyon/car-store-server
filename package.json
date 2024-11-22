@@ -1,14 +1,15 @@
 {
   "name": "assignment-2",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "author": "J P Choyon Khan",
   "license": "MIT",
   "scripts": {
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier . --write",
-    "dev": "tsc"
+    "dev": "tsc",
+    "build":"ts-node-dev --respawn --transpile-only server.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -24,6 +25,7 @@
     "eslint": "9.14.0",
     "globals": "^15.12.0",
     "prettier": "^3.3.3",
+    "ts-node-dev": "^2.0.0",
     "typescript-eslint": "^8.15.0"
   }
 }
