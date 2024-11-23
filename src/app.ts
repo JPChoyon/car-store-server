@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import carRouter from './app/modules/car.router';
+import carRouter from './app/modules/car/car.router';
 const app = express();
 
 // parser / middleware
