@@ -1,24 +1,38 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from 'express';
 import { CarServices } from './car.service';
+import { carValidationSchema } from './car.validator';
+import { z } from 'zod';
 
 // insert car data in database
 const createCarInDB = async (req: Request, res: Response) => {
+  const carData = req.body;
+
   try {
-    const carData = req.body;
-    const result = await CarServices.createCarInDB(carData);
+    // data validation with zod
+    const zodData = carValidationSchema.parse(carData);
+    const result = await CarServices.createCarInDB(zodData);
     res.status(200).json({
       message: 'Car created successfully',
       success: true,
       data: result,
     });
   } catch (err: any) {
-    res.status(500).json({
-      message: 'Car validation failed',
-      success: false,
-      error: err,
-      stack: err.stack, //error stack shown here as the requirement
-    });
+    if (err instanceof z.ZodError) {
+      // Handle Zod validation errors
+      res.status(400).json({
+        message: 'Car validation failed',
+        success: false,
+        errors: err.errors,
+      });
+    } else {
+      res.status(500).json({
+        message: 'Car validation failed',
+        success: false,
+        error: err,
+        stack: err.stack, //error stack shown here as the requirement
+      });
+    }
   }
 };
 // find the all car from the database
