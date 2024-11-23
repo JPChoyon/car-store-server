@@ -21,12 +21,16 @@ const findACarInDB = async (id: string) => {
 
 // update car data with id
 const updateCarInDB = async (id: string, data: TCar) => {
-  const result = await CarModel.findByIdAndUpdate(id, data);
+  const result = await CarModel.findByIdAndUpdate(id, data, {
+    new: true,
+  });
   return result;
 };
 // delete car data with id
 const deleteCarInDB = async (id: string) => {
-  const result = await CarModel.findByIdAndDelete(id);
+  const result = await CarModel.findByIdAndDelete(id, {
+    new: true,
+  });
   return result;
 };
 
