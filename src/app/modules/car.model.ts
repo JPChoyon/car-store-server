@@ -17,12 +17,10 @@ const carSchema = new Schema<TCar>(
     quantity: { type: Number, required: true },
     inStock: { type: Boolean, required: true },
   },
-  // times laps added for update and create
   {
-    timestamps: true,
+    timestamps: true, // times laps added for update and create
+    versionKey: false, //mongoose version disable when data are added
   },
 );
 
 export const CarModel = model<TCar>('Car', carSchema);
-
-

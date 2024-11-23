@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from 'express';
 import { CarServices } from './car.service';
 
@@ -43,20 +44,30 @@ const findACar = async (req: Request, res: Response) => {
   const { carId } = req.params;
   try {
     const result = await CarServices.findACarInDB(carId);
-    res.json({
-      message: 'Cars retrieved successfully',
+    // If no car is found, return 404 response
+    if (!result) {
+      return res.status(404).json({
+        message: 'Car not found',
+        success: false,
+      });
+    }
+    // If a car is found, return the car data
+    res.status(200).json({
+      message: 'Car retrieved successfully',
       success: true,
       data: result,
     });
   } catch (err: any) {
-    res.json({
-      message: 'Something Went Wrong',
+    // Return a 500 response for other errors
+    res.status(500).json({
+      message: 'Something went wrong',
       success: false,
-      error: err,
-      stack: err.stack, //error stack shown here as the requirement
+      error: err.message,
+      stack: err.stack, // Include the stack trace for debugging
     });
   }
 };
+
 // update car data
 const updateACar = async (req: Request, res: Response) => {
   const { carId } = req.params;
