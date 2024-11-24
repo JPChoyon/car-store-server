@@ -8,6 +8,7 @@ import { CarController } from '../car/car.controller';
 // insert order data in database
 const createOrderInDB = async (req: Request, res: Response) => {
   const { car, quantity } = req.body;
+
   // Validate input
   if (!car || !quantity || quantity <= 0) {
     res.status(400).json({
@@ -15,33 +16,47 @@ const createOrderInDB = async (req: Request, res: Response) => {
         'Car (carId) and a valid quantity are required in the request body',
       success: false,
     });
+    return; 
   }
   try {
     // Validate the order data with Zod
     const zodData = orderValidator.parse(req.body);
     // Retrieve the car details
     const carData: any = await CarController.findACarForOrder(car);
+    // If car data is not available, send an error response
+    if (!carData || !carData.quantity) {
+      res.status(404).json({
+        message: 'Car not found or invalid',
+        success: false,
+      });
+      return;
+    }
     // Check inventory quantity
     if (carData.quantity < quantity) {
       res.status(400).json({
         message: 'Insufficient stock for the requested quantity',
         success: false,
       });
+      return;
     }
     // Calculate new inventory quantity and stock status
     const newQuantity = carData.quantity - quantity;
     const stockStatus = newQuantity > 0;
+
     // Update the car's inventory in the database
     const updateResponse = await CarController.updateACarForOrder(car, {
       quantity: newQuantity,
       inStock: stockStatus,
     });
+
+    // If inventory update fails, send an error response
     if (!updateResponse) {
       res.status(500).json({
         message: 'Failed to update car inventory',
         success: false,
         data: updateResponse,
       });
+      return;
     }
     // Create the order in the database
     const orderResult = await orderService.createOrderInDB(zodData);
@@ -58,6 +73,7 @@ const createOrderInDB = async (req: Request, res: Response) => {
         success: false,
         errors: err.errors,
       });
+      return;
     }
     // Handle unexpected errors
     res.status(500).json({

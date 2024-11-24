@@ -38,21 +38,37 @@ const createCarInDB = async (req: Request, res: Response) => {
 // find the all car from the database
 const findAllCar = async (req: Request, res: Response) => {
   try {
-    const result = await CarServices.findCarInDB();
+    const { searchParams } = req.query;
+
+    let filter = {};
+    if (searchParams) {
+      const searchRegex = new RegExp(searchParams as string, 'i'); // Case-insensitive
+      filter = {
+        $or: [
+          { brand: searchRegex },
+          { model: searchRegex },
+          { category: searchRegex },
+        ],
+      };
+    }
+
+    // Query the database with the constructed filter
+    const result = await CarServices.findCarInDB(filter);
     res.json({
       message: 'Cars retrieved successfully',
       success: true,
       data: result,
     });
   } catch (err: any) {
-    res.json({
+    res.status(500).json({
       message: 'Something Went Wrong',
       success: false,
-      error: err,
-      stack: err.stack, //error stack shown here as the requirement
+      error: err.message,
+      stack: err.stack, // Include error stack for debugging
     });
   }
 };
+
 // find the a car from the database
 const findACar = async (req: Request, res: Response) => {
   const { carId } = req.params;
@@ -127,7 +143,16 @@ const findACarForOrder = async (car: string, res?: Response) => {
   try {
     // Query the database directly using the string ID
     const result = await CarServices.findACarInDBForOrder(car);
-    return result;
+    if (!result) {
+      if (res) {
+        res.json({
+          message: 'Car not found ',
+          success: false,
+        });
+      }
+    } else {
+      return result;
+    }
   } catch (err: any) {
     if (res) {
       res.json({
@@ -137,7 +162,6 @@ const findACarForOrder = async (car: string, res?: Response) => {
         stack: err.stack, // error stack shown here as the requirement
       });
     }
-    // If res is undefined, throw the error to be handled by the caller
     throw new Error(`Error finding car for order: ${err.message}`);
   }
 };

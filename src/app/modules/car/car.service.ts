@@ -8,8 +8,10 @@ const createCarInDB = async (car: TCar) => {
 };
 
 // get all car data
-const findCarInDB = async () => {
-  const result = await CarModel.find();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const findCarInDB = async (filter: Record<string, any>) => {
+  // Use the filter parameter in the database query
+  const result = await CarModel.find(filter);
   return result;
 };
 
