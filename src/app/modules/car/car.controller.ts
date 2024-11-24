@@ -53,7 +53,7 @@ const findAllCar = async (req: Request, res: Response) => {
     });
   }
 };
-// find the all car from the database
+// find the a car from the database
 const findACar = async (req: Request, res: Response) => {
   const { carId } = req.params;
   try {
@@ -103,7 +103,7 @@ const updateACar = async (req: Request, res: Response) => {
   }
 };
 
-// update car data
+// delete car data
 const deleteACar = async (req: Request, res: Response) => {
   const { carId } = req.params;
   try {
@@ -122,11 +122,97 @@ const deleteACar = async (req: Request, res: Response) => {
     });
   }
 };
+// find car data for order
+const findACarForOrder = async (car: string, res?: Response) => {
+  try {
+    // Query the database directly using the string ID
+    const result = await CarServices.findACarInDBForOrder(car);
+    // Handle no result
+    if (!result) {
+      const errorResponse = {
+        message: 'Car not found',
+        success: false,
+      };
+      if (res) {
+        return res.json(errorResponse);
+      }
+      return errorResponse;
+    }
 
+    // Handle success
+    const successResponse = {
+      message: 'Car retrieved successfully',
+      success: true,
+      data: result,
+    };
+    if (res) {
+      return res.json(successResponse);
+    }
+    return successResponse;
+  } catch (err: any) {
+    const errorResponse = {
+      message: 'Something went wrong',
+      success: false,
+      error: err.message,
+      stack: err.stack,
+    };
+    if (res) {
+      return res.json(errorResponse);
+    }
+    throw err;
+  }
+};
+// update car data after order
+const updateACarForOrder = async (
+  car: string,
+  bodyData: object,
+  res?: Response,
+) => {
+  try {
+    // Query the database directly using the string ID
+    const result = await CarServices.updateACarInDBForOrder(car, bodyData);
+    console.log(car, bodyData);
+    // Handle no result
+    if (!result) {
+      const errorResponse = {
+        message: 'Car not found',
+        success: false,
+      };
+      if (res) {
+        return res.json(errorResponse);
+      }
+      return errorResponse;
+    }
+
+    // Handle success
+    const successResponse = {
+      message: 'Car retrieved successfully',
+      success: true,
+      data: result,
+    };
+    if (res) {
+      return res.json(successResponse);
+    }
+    return successResponse;
+  } catch (err: any) {
+    const errorResponse = {
+      message: 'Something went wrong',
+      success: false,
+      error: err.message,
+      stack: err.stack,
+    };
+    if (res) {
+      return res.json(errorResponse);
+    }
+    throw err;
+  }
+};
 export const CarController = {
   createCarInDB,
   findAllCar,
   findACar,
   updateACar,
   deleteACar,
+  findACarForOrder,
+  updateACarForOrder,
 };

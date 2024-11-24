@@ -18,7 +18,6 @@ const findACarInDB = async (id: string) => {
   const result = await CarModel.findById(id);
   return result;
 };
-
 // update car data with id
 const updateCarInDB = async (id: string, data: TCar) => {
   const result = await CarModel.findByIdAndUpdate(id, data, {
@@ -33,11 +32,22 @@ const deleteCarInDB = async (id: string) => {
   });
   return result;
 };
-
+// find car for order 
+const findACarInDBForOrder = async (id: string) => {
+  const result = await CarModel.findOne({ _id: id });
+  return result;
+};
+// update car after order 
+const updateACarInDBForOrder = async (id: string, bodyData: object) => {
+  const result = await CarModel.findOneAndUpdate({ _id: id },bodyData);
+  return result;
+};
 export const CarServices = {
   createCarInDB,
   findCarInDB,
   findACarInDB,
   updateCarInDB,
   deleteCarInDB,
+  findACarInDBForOrder,
+  updateACarInDBForOrder,
 };

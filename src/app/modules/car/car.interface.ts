@@ -1,6 +1,6 @@
 export type TCar = {
   brand: 'Toyota' | 'BMW' | 'Ford';
-  model: string;
+  model: 'Camry' | '3 Series' | 'Focus';
   year: number;
   price: number;
   category: 'Sedan' | 'SUV' | 'Truck' | 'Coupe' | 'Convertible';
