@@ -32,14 +32,14 @@ const deleteCarInDB = async (id: string) => {
   });
   return result;
 };
-// find car for order 
+// find car for order
 const findACarInDBForOrder = async (id: string) => {
   const result = await CarModel.findOne({ _id: id });
   return result;
 };
-// update car after order 
+// update car after order
 const updateACarInDBForOrder = async (id: string, bodyData: object) => {
-  const result = await CarModel.findOneAndUpdate({ _id: id },bodyData);
+  const result = await CarModel.findOneAndUpdate({ _id: id }, bodyData);
   return result;
 };
 export const CarServices = {

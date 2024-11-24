@@ -7,6 +7,7 @@ const app = express();
 // parser / middleware
 app.use(express.json());
 app.use(cors());
+
 app.use('/api/cars', carRouter);
 app.use('/api/orders', orderRouter);
 const getAController = (req: Request, res: Response) => {

@@ -60,7 +60,7 @@ const findACar = async (req: Request, res: Response) => {
     const result = await CarServices.findACarInDB(carId);
     // If no car is found, return 404 response
     if (!result) {
-      return res.status(404).json({
+      res.status(404).json({
         message: 'Car not found',
         success: false,
       });
@@ -127,39 +127,18 @@ const findACarForOrder = async (car: string, res?: Response) => {
   try {
     // Query the database directly using the string ID
     const result = await CarServices.findACarInDBForOrder(car);
-    // Handle no result
-    if (!result) {
-      const errorResponse = {
-        message: 'Car not found',
-        success: false,
-      };
-      if (res) {
-        return res.json(errorResponse);
-      }
-      return errorResponse;
-    }
-
-    // Handle success
-    const successResponse = {
-      message: 'Car retrieved successfully',
-      success: true,
-      data: result,
-    };
-    if (res) {
-      return res.json(successResponse);
-    }
-    return successResponse;
+    return result;
   } catch (err: any) {
-    const errorResponse = {
-      message: 'Something went wrong',
-      success: false,
-      error: err.message,
-      stack: err.stack,
-    };
     if (res) {
-      return res.json(errorResponse);
+      res.json({
+        message: 'Something Went Wrong',
+        success: false,
+        error: err,
+        stack: err.stack, // error stack shown here as the requirement
+      });
     }
-    throw err;
+    // If res is undefined, throw the error to be handled by the caller
+    throw new Error(`Error finding car for order: ${err.message}`);
   }
 };
 // update car data after order
@@ -171,7 +150,6 @@ const updateACarForOrder = async (
   try {
     // Query the database directly using the string ID
     const result = await CarServices.updateACarInDBForOrder(car, bodyData);
-    console.log(car, bodyData);
     // Handle no result
     if (!result) {
       const errorResponse = {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { IOrder, } from './order.interface';
 import { orderModel } from './order.model';
 
@@ -31,7 +32,7 @@ const calculateTotalRevenue = async (): Promise<number> => {
     ]);
 
     return result[0]?.totalRevenue || 0; // Return totalRevenue or 0 if no orders
-  } catch (error) {
+  } catch (error:any) {
     throw new Error(`Failed to calculate revenue: ${error.message}`);
   }
 };
