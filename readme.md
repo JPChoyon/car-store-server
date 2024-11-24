@@ -29,4 +29,39 @@ For run the server
 yarn dev 
 ```
 
+### **Project Implementation Technology:**
+
+- `typescript`, `node js` , `express js`, `mongoose` etc
+- Using `zod` for validation data.
+- Implement CRUD operations.
+- Using Mongoose for schema definition and data operations.
+
 ## Examples
+
+### Car routes 
+Create car data : `localhost:5000/api/cars`
+method: `post`
+Get all car data : `localhost:5000/api/cars`
+method: `get`
+Get A Car data : `localhost:5000/api/cars/:carId`
+method: `get`
+Update A Car data : `localhost:5000/api/cars/:carId`
+method: `put`
+delete Car data : `localhost:5000/api/cars/:carId`
+method: `delete`
+
+### order routes 
+Create order data : `localhost:5000/api/orders`
+method: `post`
+Get all order data : `localhost:5000/api/orders`
+method: `get`
+Get A order data : `localhost:5000/api/orders/:orderId`
+method: `get`
+Update A order data : `localhost:5000/api/orders/:orderId`
+method: `put`
+delete order data : `localhost:5000/api/orders/:carId`
+method: `delete`
+
+### Revenue Routes
+Get Revenue data : `localhost:5000/api/orders/revenue`
+method: `get`
