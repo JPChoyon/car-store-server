@@ -4,6 +4,9 @@
 
 ## Step 1
 First open terminal clone the link git repo.
+```
+https://github.com/JPChoyon/car-store-server.git
+```
 
 ## Step 2
 Now open folder in vs code.
@@ -21,6 +24,9 @@ PORT=5000
 DATABASE_URL=mongodb+srv://jpchoyonkhan65:ZJUIJYX7bNCmY8JO@cluster1.fycfdwn.mongodb.net/car-store-mongoose?retryWrites=true&w=majority&appName=Cluster1
 ```
 ## Step 4 
-yarn dev for run the server 
+For run the server 
+```
+yarn dev 
+```
 
 ## Examples
