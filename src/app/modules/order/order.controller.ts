@@ -16,7 +16,7 @@ const createOrderInDB = async (req: Request, res: Response) => {
         'Car (carId) and a valid quantity are required in the request body',
       success: false,
     });
-    return; 
+    return;
   }
   try {
     // Validate the order data with Zod
@@ -41,14 +41,13 @@ const createOrderInDB = async (req: Request, res: Response) => {
     }
     // Calculate new inventory quantity and stock status
     const newQuantity = carData.quantity - quantity;
-    const stockStatus = newQuantity > 0;
+    const stockStatus = newQuantity > 0 ? true : false;
 
     // Update the car's inventory in the database
     const updateResponse = await CarController.updateACarForOrder(car, {
       quantity: newQuantity,
       inStock: stockStatus,
     });
-
     // If inventory update fails, send an error response
     if (!updateResponse) {
       res.status(500).json({

@@ -25,13 +25,13 @@ const calculateTotalRevenue = async (): Promise<number> => {
     const result = await orderModel.aggregate([
       {
         $group: {
-          _id: null, // Ignore grouping
+          _id: null, 
           totalRevenue: { $sum: { $multiply: ['$totalPrice', '$quantity'] } },
         },
       },
     ]);
 
-    return result[0]?.totalRevenue || 0; // Return totalRevenue or 0 if no orders
+    return result[0]?.totalRevenue || 0; 
   } catch (error:any) {
     throw new Error(`Failed to calculate revenue: ${error.message}`);
   }
