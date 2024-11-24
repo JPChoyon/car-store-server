@@ -107,7 +107,7 @@ const updateACar = async (req: Request, res: Response) => {
 const deleteACar = async (req: Request, res: Response) => {
   const { carId } = req.params;
   try {
-    const result = await CarServices.deleteCarInDB(carId);
+    await CarServices.deleteCarInDB(carId);
     res.json({
       message: 'Car deleted successfully',
       success: true,

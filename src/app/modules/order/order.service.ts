@@ -1,4 +1,4 @@
-import { IOrder, IRevenueData } from './order.interface';
+import { IOrder, } from './order.interface';
 import { orderModel } from './order.model';
 
 // creating order data

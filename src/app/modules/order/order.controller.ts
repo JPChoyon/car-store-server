@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod';
 import { orderService } from './order.service';
 import { orderValidator } from './order.validator';
