@@ -4,44 +4,56 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { userModel } from '../modules/user/user.model';
 import config from '../config';
 
-const auth = (requiredRole: string) => {
-  return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    try {
+interface AuthRequest extends Request {
+  user?: JwtPayload;
+}
+
+const auth = (requiredRole: string) =>
+  catchAsync(
+    async (
+      req: AuthRequest,
+      res: Response,
+      next: NextFunction,
+    ): Promise<void> => {
       const authHeader = req.headers.authorization;
-      // Check if token is provided
+
       if (!authHeader) {
-        return res.status(401).json({ error: 'Unauthorized - No Token' });
-      }
-      const token = authHeader
-      // Verify token
-      const decoded = jwt.verify(
-        token,
-        config.jwt_secret as string,
-      ) as JwtPayload;
-      if (!decoded.email || !decoded.role) {
-        return res.status(403).json({ error: 'Invalid Token' });
+        res.status(401).json({ error: 'Unauthorized - No Token' });
+        return;
       }
 
-      // Find the user in the database
-      const user = await userModel.findOne({ email: decoded.email });
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
+      const token = authHeader;
+      try {
+        const decoded = jwt.verify(
+          token,
+          config.jwt_secret as string,
+        ) as JwtPayload;
 
-      // Role validation
-      if (user.role !== requiredRole) {
-        return res
-          .status(403)
-          .json({ error: 'Forbidden - Insufficient permissions' });
-      }
+        if (!decoded.email || !decoded.role) {
+          res.status(403).json({ error: 'Invalid Token' });
+          return;
+        }
 
-      // Attach user to request
-      req.user = user;
-      next();
-    } catch (err) {
-      return res.status(401).json({ error: 'Invalid or Expired Token' });
-    }
-  });
-};
+        const user = await userModel.findOne({ email: decoded.email });
+
+        if (!user) {
+          res.status(404).json({ error: 'User not found' });
+          return;
+        }
+
+        if (user.role !== requiredRole) {
+          res
+            .status(403)
+            .json({ error: 'Forbidden - Insufficient permissions' });
+          return;
+        }
+
+        req.user = decoded; 
+        next();
+      } catch (err) {
+        res.status(401).json({ error: 'Invalid or Expired Token' });
+      }
+    },
+  );
 
 export default auth;

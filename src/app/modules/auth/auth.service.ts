@@ -10,19 +10,31 @@ const registerUser = async (payload: TUser) => {
   return result;
 };
 const loginUser = async (payload: TLoginUser) => {
-  const result = await userModel.findOne({ email: payload?.email });
+  const result = await userModel.findOne({ email: payload.email });
   if (!result) {
     throw new Error('User not found');
   }
-  const isPasswordMatch = bcrypt.compare(payload?.password, result.password);
+
+  // Check for password and compare
+  if (!payload.password || !result.password) {
+    throw new Error('Password is incorrect or missing');
+  }
+
+  const isPasswordMatch = await bcrypt.compare(
+    payload.password,
+    result.password,
+  );
+
   if (!isPasswordMatch) {
     throw new Error('Password incorrect');
   }
+
   const token = jwt.sign(
-    { email: result?.email, role: result?.role },
+    { email: result.email, role: result.role },
     config.jwt_secret as string,
     { expiresIn: '2d' },
   );
+
   return { token, result };
 };
 

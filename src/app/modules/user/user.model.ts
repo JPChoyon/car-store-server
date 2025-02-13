@@ -16,10 +16,15 @@ const userSchema = new Schema(
 );
 
 userSchema.pre('save', async function (next) {
-  this?.password = await bcrypt.hash(
-    this?.password,
+  if (!this.password || typeof this.password !== 'string') {
+    throw new Error('Invalid password');
+  }
+
+  this.password = await bcrypt.hash(
+    this.password,
     Number(config.bcrypt_salt_round),
   );
+
   next();
 });
 userSchema.post('save', function (doc, next) {
