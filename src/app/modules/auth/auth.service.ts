@@ -37,8 +37,16 @@ const loginUser = async (payload: TLoginUser) => {
 
   return { token, result };
 };
-
+const findUserByEmail = async (email: string) => {
+  try {
+    const user = await userModel.findOne({ email });
+    return user; // Returns the user if found, or null if not
+  } catch (err:any) {
+    throw new Error('Error checking email in database');
+  }
+};
 export const AuthService = {
   registerUser,
   loginUser,
+  findUserByEmail,
 };

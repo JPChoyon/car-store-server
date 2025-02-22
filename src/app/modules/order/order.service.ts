@@ -21,14 +21,18 @@ const findAOrderInDB = async (id: string) => {
 };
 
 // Find orders by user email (no pagination)
-const findOrdersByUserEmail = async (email: string) => {
+const findOrdersByUserEmail = async (email?: string) => {
   try {
-    const orders = await orderModel.find({ email: email }); // Change `userEmail` if necessary
+    const query = email ? { email } : {}; // Fetch all orders if no email is provided
+    const orders = await orderModel.find(query).populate('car'); // Populate car details
+
+    console.log('Orders Found:', orders); // Debugging
     return orders;
   } catch (error: any) {
     throw new Error(`Error fetching orders: ${error.message}`);
   }
 };
+
 
 // Calculate total revenue from orders
 const calculateTotalRevenue = async (): Promise<number> => {
