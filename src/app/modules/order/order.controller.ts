@@ -1,10 +1,13 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod';
 import { orderService } from './order.service';
 import { orderValidator } from './order.validator';
-import { Request, Response } from 'express';
+import { Request, RequestHandler, Response } from 'express';
 import { CarController } from '../car/car.controller';
-
+interface IQuery {
+  email?: string;
+}
 // insert order data in database
 const createOrderInDB = async (req: Request, res: Response) => {
   const { car, quantity } = req.body;
@@ -84,24 +87,41 @@ const createOrderInDB = async (req: Request, res: Response) => {
   }
 };
 
-// find the all order from the database
-const findAllOrder = async (req: Request, res: Response) => {
+// In your findAllOrder controller
+const findAllOrder: RequestHandler = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
-    const result = await orderService.findOrderInDB();
+    const { email } = req.query;
+    let result;
+    if (email) {
+      result = await orderService.findOrdersByUserEmail(email as string);
+    } else {
+      result = await orderService.findOrderInDB();
+    }
+    if (!result || result.length === 0) {
+      res.status(404).json({
+        message: 'No orders found.',
+        success: false,
+      });
+      return;
+    }
     res.json({
-      message: 'order retrieved successfully',
+      message: 'Orders retrieved successfully',
       success: true,
       data: result,
     });
   } catch (err: any) {
-    res.json({
-      message: 'Something Went Wrong',
+    res.status(500).json({
+      message: 'Something went wrong',
       success: false,
-      error: err,
-      stack: err.stack, //error stack shown here as the requirement
+      error: err.message,
+      stack: err.stack,
     });
   }
 };
+
 // find the all order from the database
 const findAOrder = async (req: Request, res: Response) => {
   const { orderId } = req.params;
@@ -149,7 +169,7 @@ const calculateRevenue = async (req: Request, res: Response) => {
 
 export const orderController = {
   createOrderInDB,
-  findAllOrder,
   findAOrder,
   calculateRevenue,
+  findAllOrder,
 };
