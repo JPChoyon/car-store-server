@@ -7,6 +7,7 @@ const orderRouter = Router();
 
 orderRouter.get('/', orderController.findAllOrder);
 orderRouter.post('/', orderController.createOrderInDB);
+orderRouter.get('/verify', orderController.verifyPayment);
 orderRouter.get('/revenue', orderController.calculateRevenue);
 orderRouter.get('/:orderId', orderController.findAOrder);
 

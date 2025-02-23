@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { IOrder } from './order.interface';
 import { orderModel } from './order.model';
+import { orderUtils } from './order.utils';
 
 // Creating order data
 const createOrderInDB = async (order: IOrder) => {
@@ -23,16 +24,13 @@ const findAOrderInDB = async (id: string) => {
 // Find orders by user email (no pagination)
 const findOrdersByUserEmail = async (email?: string) => {
   try {
-    const query = email ? { email } : {}; // Fetch all orders if no email is provided
-    const orders = await orderModel.find(query).populate('car'); // Populate car details
-
-    console.log('Orders Found:', orders); // Debugging
+    const query = email ? { email } : {};
+    const orders = await orderModel.find(query).populate('car');
     return orders;
   } catch (error: any) {
     throw new Error(`Error fetching orders: ${error.message}`);
   }
 };
-
 
 // Calculate total revenue from orders
 const calculateTotalRevenue = async (): Promise<number> => {
@@ -51,6 +49,35 @@ const calculateTotalRevenue = async (): Promise<number> => {
     throw new Error(`Failed to calculate revenue: ${error.message}`);
   }
 };
+const verifyPayment = async (order_id: string) => {
+  const verifiedPayment = await orderUtils.verifyPayment(order_id);
+
+  if (verifiedPayment.length) {
+    await orderModel.findOneAndUpdate(
+      {
+        'transaction.id': order_id,
+      },
+      {
+        'transaction.bank_status': verifiedPayment[0].bank_status,
+        'transaction.sp_code': verifiedPayment[0].sp_code,
+        'transaction.sp_message': verifiedPayment[0].sp_message,
+        'transaction.transactionStatus': verifiedPayment[0].transaction_status,
+        'transaction.method': verifiedPayment[0].method,
+        'transaction.date_time': verifiedPayment[0].date_time,
+        status:
+          verifiedPayment[0].bank_status == 'Success'
+            ? 'Paid'
+            : verifiedPayment[0].bank_status == 'Failed'
+              ? 'Pending'
+              : verifiedPayment[0].bank_status == 'Cancel'
+                ? 'Cancelled'
+                : '',
+      },
+    );
+  }
+
+  return verifiedPayment;
+};
 
 export const orderService = {
   createOrderInDB,
@@ -58,4 +85,5 @@ export const orderService = {
   findAOrderInDB,
   findOrdersByUserEmail,
   calculateTotalRevenue,
+  verifyPayment,
 };
