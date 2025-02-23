@@ -49,23 +49,27 @@ const calculateTotalRevenue = async (): Promise<number> => {
     throw new Error(`Failed to calculate revenue: ${error.message}`);
   }
 };
-const verifyPayment = async (order_id: string) => {
-  const verifiedPayment = (await somePaymentVerificationFunction()) as {
-    sp_code: unknown;
-    transaction_status: unknown;
-    method: unknown;
-    date_time: unknown;
-    sp_message: unknown;
-    bank_status: string;
-  }[];
 
-  if (verifiedPayment.length) {
+interface VerifiedPayment {
+  sp_code: string;
+  transaction_status: string;
+  method: string;
+  date_time: string;
+  sp_message: string;
+  bank_status: string;
+}
+const verifyPayment = async (order_id: string): Promise<VerifiedPayment[]> => {
+  const verifiedPayment: VerifiedPayment[] = (await orderUtils.verifyPayment(
+    order_id,
+  )) as VerifiedPayment[];
+
+  if (verifiedPayment.length > 0) {
     await orderModel.findOneAndUpdate(
       {
         'transaction.id': order_id,
       },
       {
-        'transaction.bank_status': verifiedPayment[0].bank_status,
+        'transaction.bank_status': verifiedPayment[0].bank_status || 'n/a',
         'transaction.sp_code': verifiedPayment[0].sp_code,
         'transaction.sp_message': verifiedPayment[0].sp_message,
         'transaction.transactionStatus': verifiedPayment[0].transaction_status,
@@ -94,7 +98,3 @@ export const orderService = {
   calculateTotalRevenue,
   verifyPayment,
 };
-function somePaymentVerificationFunction(): { bank_status: string; }[] | PromiseLike<{ bank_status: string; }[]> {
-  throw new Error('Function not implemented.');
-}
-
