@@ -9,20 +9,24 @@ export const carValidationSchema = z.object({
     required_error: 'Model is required',
     invalid_type_error: 'Model must be one of: Camry, 3 Series, Focus',
   }),
+  image: z.string({
+    required_error: 'Image is required',
+    invalid_type_error: 'only link are allowed',
+  }),
   year: z
     .number({
       required_error: 'Year is required',
       invalid_type_error: 'Year must be a valid number',
     })
     .int('Year must be an integer')
-    .min(1886, 'Year must be no earlier than 1886') 
-    .max(new Date().getFullYear(), ` Year cannot be in the future`), 
+    .min(1886, 'Year must be no earlier than 1886')
+    .max(new Date().getFullYear(), ` Year cannot be in the future`),
   price: z
     .number({
       required_error: 'Price is required',
       invalid_type_error: 'Price must be a valid number',
     })
-    .positive('Price must be a positive number'), 
+    .positive('Price must be a positive number'),
   category: z.enum(['Sedan', 'SUV', 'Truck', 'Coupe', 'Convertible'], {
     required_error: 'Category is required',
     invalid_type_error:

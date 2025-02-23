@@ -5,7 +5,12 @@ import { TCar } from './car.interface';
 const carSchema = new Schema<TCar>(
   {
     brand: { type: String, enum: ['Toyota', 'BMW', 'Ford'], require: true },
-    model: { type: String,enum:['Camry','3 Series', 'Focus'], required: true },
+    model: {
+      type: String,
+      enum: ['Camry', '3 Series', 'Focus'],
+      required: true,
+    },
+    image: { type: String, required: true },
     year: { type: Number, required: true },
     price: { type: Number, required: true },
     category: {
