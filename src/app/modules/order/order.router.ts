@@ -5,8 +5,8 @@ import { orderController } from './order.controller';
 
 const orderRouter = Router();
 
-orderRouter.get('/', orderController.findAllOrder);
 orderRouter.post('/', orderController.createOrderInDB);
+orderRouter.get('/', orderController.findAllOrder);
 orderRouter.get('/verify', orderController.verifyPayment);
 orderRouter.get('/revenue', orderController.calculateRevenue);
 orderRouter.get('/:orderId', orderController.findAOrder);

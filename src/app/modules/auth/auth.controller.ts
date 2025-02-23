@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { userValidator } from '../user/user.validator';
 import { z } from 'zod';
@@ -11,22 +11,21 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
     const zodData = userValidator.parse(userData);
     const existingUser = await AuthService.findUserByEmail(zodData.email);
     if (existingUser) {
-      return res.status(400).json({
+      res.status(400).json({
         message: 'Email is already registered',
         success: false,
       });
     }
     const result = await AuthService.registerUser(zodData);
-    res.status(200).json({
+    res.status(201).json({
       message: 'User registered successfully',
       success: true,
       data: result,
     });
-  } catch (err: any) {
-    next(err); 
+  } catch (error) {
+    next(error);
   }
 };
-
 
 const login = async (req: Request, res: Response) => {
   const userData = req.body;

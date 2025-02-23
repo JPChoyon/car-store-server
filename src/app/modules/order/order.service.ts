@@ -50,7 +50,14 @@ const calculateTotalRevenue = async (): Promise<number> => {
   }
 };
 const verifyPayment = async (order_id: string) => {
-  const verifiedPayment = await orderUtils.verifyPayment(order_id);
+  const verifiedPayment = (await somePaymentVerificationFunction()) as {
+    sp_code: unknown;
+    transaction_status: unknown;
+    method: unknown;
+    date_time: unknown;
+    sp_message: unknown;
+    bank_status: string;
+  }[];
 
   if (verifiedPayment.length) {
     await orderModel.findOneAndUpdate(
@@ -87,3 +94,7 @@ export const orderService = {
   calculateTotalRevenue,
   verifyPayment,
 };
+function somePaymentVerificationFunction(): { bank_status: string; }[] | PromiseLike<{ bank_status: string; }[]> {
+  throw new Error('Function not implemented.');
+}
+

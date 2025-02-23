@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import { orderService } from './order.service';
 import { orderValidator } from './order.validator';
-import { Request, RequestHandler, Response } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { CarController } from '../car/car.controller';
 import { orderUtils } from './order.utils';
 import catchAsync from '../../utils/catchAsync';
@@ -12,17 +12,21 @@ interface IQuery {
   email?: string;
 }
 // insert order data in database
-const createOrderInDB = async (req: Request, res: Response) => {
+const createOrderInDB = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<any> => {
   const { car, quantity, email } = req.body;
 
   // Validate input
   if (!car || !quantity || quantity <= 0 || !email) {
     return res.status(400).json({
-      message:
-        'Email, Car (carId), and a valid quantity are required in the request body',
+      message: 'Email, Car (carId), and a valid quantity are required',
       success: false,
     });
   }
+
   try {
     // Retrieve the car details
     const carData: any = await CarController.findACarForOrder(car);
@@ -50,7 +54,7 @@ const createOrderInDB = async (req: Request, res: Response) => {
 
     // Update inventory
     const newQuantity = carData.quantity - quantity;
-    const stockStatus = newQuantity > 0 ? true : false;
+    const stockStatus = newQuantity > 0;
 
     const updateResponse = await CarController.updateACarForOrder(car, {
       quantity: newQuantity,
@@ -63,8 +67,6 @@ const createOrderInDB = async (req: Request, res: Response) => {
         success: false,
       });
     }
-
-    // Create the order in the database
     const orderResult = await orderService.createOrderInDB(validatedOrder);
 
     // Prepare payment payload
@@ -79,7 +81,7 @@ const createOrderInDB = async (req: Request, res: Response) => {
       client_ip: '192.168.0.256',
     };
 
-    // Attempt to make payment
+    //  make payment
     let paymentResponse;
     try {
       paymentResponse = await orderUtils.makePayment(shurjoPayPayload);
@@ -97,8 +99,9 @@ const createOrderInDB = async (req: Request, res: Response) => {
         );
       }
     } catch (paymentError) {
-      console.error('Payment failed:', paymentError);
-      paymentResponse = { error: paymentError.message };
+      // Explicitly typecast `paymentError`
+      const errorMessage = (paymentError as Error).message;
+      paymentResponse = { error: errorMessage };
     }
 
     // ✅ Send a single response with order & payment info
@@ -108,25 +111,10 @@ const createOrderInDB = async (req: Request, res: Response) => {
       order: orderResult,
       payment: paymentResponse,
     });
-  } catch (err: any) {
-    if (err instanceof z.ZodError) {
-      return res.status(400).json({
-        message: 'Order validation failed',
-        success: false,
-        errors: err.errors,
-      });
-    }
-
-    console.error('Unexpected Error:', err);
-    res.status(500).json({
-      message: 'Something went wrong',
-      success: false,
-      error: err.message,
-      stack: err.stack,
-    });
+  } catch (error) {
+    next(error);
   }
 };
-
 
 // In your findAllOrder controller
 const findAllOrder: RequestHandler = async (
